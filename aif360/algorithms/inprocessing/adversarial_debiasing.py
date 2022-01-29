@@ -86,7 +86,7 @@ class AdversarialDebiasing(Transformer):
             b1 = tf.Variable(tf.zeros(shape=[self.classifier_num_hidden_units]), name='b1')
 
             h1 = tf.nn.relu(tf.matmul(features, W1) + b1)
-            h1 = tf.nn.dropout(h1, keep_prob=keep_prob, seed=self.seed2)
+            h1 = tf.nn.dropout(h1, rate=(1 - keep_prob), seed=self.seed2)
 
             W2 = tf.get_variable('W2', [self.classifier_num_hidden_units, 1],
                                  initializer=tf.initializers.glorot_uniform(seed=self.seed3))
