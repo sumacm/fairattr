@@ -14,7 +14,7 @@ default_mappings = {
 
 def default_preprocessing(df):
     """Replace Attrition Yes/No with 1/0"""
-    status_map = {'No': 0, 'Yes': 1}
+    status_map = {'No': 1, 'Yes': 0}
     df['Attrition'] = df['Attrition'].replace(status_map)
     return df
 
