@@ -5,33 +5,40 @@ import pandas as pd
 from aif360.datasets import StandardDataset
 
 default_mappings = {
-#label 0: Employee will stay
-#label 1: Employee will leave
- 'label_maps': [{'No': 'Employee will stay', 'Yes': 'Employee will leave'}],
-  'protected_attribute_maps': [{0.0: 'Old', 1.0: 'Young'},
-                               {0.0: 'Male', 1.0: 'Female'}]
+    # label 0: Employee will stay
+    # label 1: Employee will leave
+    'label_maps': [{0: 'Employee will stay', 1: 'Employee will leave'}],
+    'protected_attribute_maps': [{0.0: 'Old', 1.0: 'Young'},
+                                 {0.0: 'Female', 1.0: 'Male'}]
 }
 
+def default_preprocessing(df):
+    """Replace Attrition Yes/No with 1/0"""
+    status_map = {'No': 0, 'Yes': 1}
+    df['Attrition'] = df['Attrition'].replace(status_map)
+    return df
+
 class EmployeeDataset(StandardDataset):
-    def __init__(self, label_name='Attrition',  favorable_classes=['No'],
-                 protected_attribute_names=['Age','Gender'],
-                 privileged_classes = [lambda x: x < 25,['Male']],
+    def __init__(self, label_name='Attrition', favorable_classes=[0],
+                 protected_attribute_names=['Age', 'Gender'],
+                 privileged_classes=[lambda x: x < 25, ['Male']],
                  na_values=["unknown"],
+                 custom_preprocessing=default_preprocessing,
                  metadata=default_mappings):
         """See :obj:`StandardDataset` for a description of the arguments.
 
         """
 
         filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-            '..', 'data', 'raw', 'employee', 'emp_attrition.csv')
+                                '..', 'data', 'raw', 'employee', 'emp_attrition.csv')
         try:
 
             df = pd.read_csv(filepath, sep=',', na_values=na_values)
             features_to_keep = ['Age', 'Attrition', 'MaritalStatus', 'Gender',
-                                'EducationField','DailyRate','DistanceFromHome','Education','TotalWorkingYears'
-                                ,'EnvironmentSatisfaction','HourlyRate','JobInvolvement','JobLevel','BusinessTravel',
-                                'MonthlyIncome','StockOptionLevel','PerformanceRating']
-            categorical_features = ['MaritalStatus','EducationField','BusinessTravel']
+                                'EducationField', 'DailyRate', 'DistanceFromHome', 'Education', 'TotalWorkingYears'
+                , 'EnvironmentSatisfaction', 'HourlyRate', 'JobInvolvement', 'JobLevel', 'BusinessTravel',
+                                'MonthlyIncome', 'StockOptionLevel', 'PerformanceRating']
+            categorical_features = ['MaritalStatus', 'EducationField', 'BusinessTravel']
             """
             df = pd.get_dummies(data=sorted(df), columns=categorical_features)
             
@@ -54,15 +61,16 @@ class EmployeeDataset(StandardDataset):
             print("\n\t https://www.kaggle.com/pavansubhasht/ibm-hr-analytics-attrition-dataset/home")
             print("\nunzip it and place the files, as-is, in the folder:")
             print("\n\t{}\n".format(os.path.abspath(os.path.join(
-               os.path.abspath(__file__), '..', '..', 'data', 'raw', 'employee'))))
+                os.path.abspath(__file__), '..', '..', 'data', 'raw', 'employee'))))
             import sys
             sys.exit(1)
 
-        super(EmployeeDataset, self).__init__(df=df,label_name=label_name,
-            favorable_classes=favorable_classes,
-            protected_attribute_names=protected_attribute_names,
-            privileged_classes=privileged_classes,
-            features_to_keep=features_to_keep,
-            categorical_features=categorical_features,
-            metadata=metadata,
-            na_values=na_values)
+        super(EmployeeDataset, self).__init__(df=df, label_name=label_name,
+                                              favorable_classes=favorable_classes,
+                                              protected_attribute_names=protected_attribute_names,
+                                              privileged_classes=privileged_classes,
+                                              features_to_keep=features_to_keep,
+                                              categorical_features=categorical_features,
+                                              metadata=metadata,
+                                              custom_preprocessing=custom_preprocessing,
+                                              na_values=na_values)
